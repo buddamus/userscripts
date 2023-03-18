@@ -2,7 +2,7 @@
 // @name         Like all songs from all my albums
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  Scans all the albums in your libary; Visits each album and likes all the songs (this can take a while)
+// @description  Adds missing functionality to open.spotify.com; Like all songs on all your liked albums; Like all songs on a given album;
 // @author       You
 // @match        https://open.spotify.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=spotify.com
