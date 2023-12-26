@@ -360,9 +360,9 @@ class SpotifyHelper {
     if (location.href === "https://open.spotify.com/collection/tracks") {
       const libraryTitleDiv = document.querySelector(
         '[data-testid="creator-link"]'
-      ).parentElement?.parentElement?.parentElement;
+      )?.parentElement?.parentElement?.parentElement;
 
-      if (!libraryTitleDiv?.parentNode?.lastChild) {
+      if (!libraryTitleDiv) {
         setTimeout(() => {
           this.setupLikeAllSongsOnAllAlbums();
         }, 300);
@@ -483,7 +483,7 @@ class SpotifyHelper {
 
     const libraryTitleDiv = document.querySelector(
       '[data-testid="creator-link"]'
-    ).parentElement?.parentElement?.parentElement;
+    )?.parentElement?.parentElement?.parentElement;
 
     if (!libraryTitleDiv) {
       setTimeout(() => {
