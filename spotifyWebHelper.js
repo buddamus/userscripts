@@ -106,7 +106,8 @@ class SpotifyAPI {
    * @param {*} body
    * @returns
    */
-  doFetch = async (url, method = "GET", body) => {
+  doFetch = async (url, method = "GET", body = undefined) => {
+    /** @type {RequestInit | undefined} **/
     const props = {
       credentials: "include",
       headers: this.authHeaders,
@@ -350,24 +351,29 @@ class SpotifyHelper {
     this.wsPageListeners = [];
     if (location.href.startsWith("https://open.spotify.com/album/")) {
       this.setupLikeAlbumTracks();
-    } else if (location.href === "https://open.spotify.com/collection/albums") {
+    } else if (location.href === "https://open.spotify.com/collection/tracks") {
       this.setupLikeAllSongsOnAllAlbums();
     }
   };
 
   setupLikeAllSongsOnAllAlbums = async () => {
-    if (location.href === "https://open.spotify.com/collection/albums") {
+    if (location.href === "https://open.spotify.com/collection/tracks") {
       const libraryTitleDiv = document.querySelector(
-        '.contentSpacing h1[data-encore-id="type"]'
-      );
-      if (!libraryTitleDiv) {
+        '[data-testid="creator-link"]'
+      ).parentElement?.parentElement?.parentElement;
+
+      if (!libraryTitleDiv?.parentNode?.lastChild) {
         setTimeout(() => {
           this.setupLikeAllSongsOnAllAlbums();
         }, 300);
         return;
       }
 
-      const divToUpdate = libraryTitleDiv.parentNode.lastChild;
+      const divToUpdate = document.createElement("div");
+      divToUpdate.style.marginLeft = "10px";
+
+      libraryTitleDiv.appendChild(divToUpdate);
+
       divToUpdate.innerText = "Analyzing albums..";
       const allAlbums = await this.api.getAlbumsInLibrary();
 
@@ -384,11 +390,23 @@ class SpotifyHelper {
           return [];
         };
         const setupActions = () => {
-          let a = new Set(getHandledList());
+          const handledList = getHandledList();
+          let a = new Set(handledList);
           let b = new Set(allAlbums);
+
+          const noLongerLikedSet = new Set([...a].filter((x) => !b.has(x)));
+          if (noLongerLikedSet.size > 0) {
+            const updatedHandledList = JSON.stringify(
+              handledList.filter((x) => !noLongerLikedSet.has(x))
+            );
+            localStorage.setItem("handledAlbums", updatedHandledList);
+          }
+
           const unhandledAlbumsSet = new Set([...b].filter((x) => !a.has(x)));
           const unhandledAlbums = Array.from(unhandledAlbumsSet);
-          divToUpdate.innerHTML = `${a.size}/${allAlbums.length} albums have songs liked&nbsp;&nbsp;`;
+          divToUpdate.innerHTML = `${a.size - noLongerLikedSet.size}/${
+            allAlbums.length
+          } albums have songs liked&nbsp;&nbsp;`;
 
           if (unhandledAlbums.length > 0) {
             const likeAllEl = document.createElement("a");
@@ -462,19 +480,28 @@ class SpotifyHelper {
       //we might have went to a new url after a settimeout
       return;
     }
-    const actionBar = document.querySelector('[data-testid="action-bar-row"]');
-    if (!actionBar) {
+
+    const libraryTitleDiv = document.querySelector(
+      '[data-testid="creator-link"]'
+    ).parentElement?.parentElement?.parentElement;
+
+    if (!libraryTitleDiv) {
       setTimeout(() => {
         this.setupLikeAlbumTracks();
       }, 300);
       return;
     }
 
+    const divToUpdate = document.createElement("div");
+    divToUpdate.style.marginLeft = "10px";
+
+    libraryTitleDiv.appendChild(divToUpdate);
+
     let likedSongsDiv = document.getElementById("likedSongs");
     if (!likedSongsDiv) {
       likedSongsDiv = document.createElement("div");
       likedSongsDiv.id = "likedSongs";
-      actionBar.appendChild(likedSongsDiv);
+      divToUpdate.appendChild(likedSongsDiv);
     }
     likedSongsDiv.innerText = "analyzing album..";
 

@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "workbench.list.openMode": "doubleClick",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "js/ts.implicitProjectConfig.checkJs": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.options": {
+    "configFile": ".eslintrc.v2.json"
+  }
+}
